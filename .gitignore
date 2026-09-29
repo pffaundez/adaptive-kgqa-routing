@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+
+# Data and generated outcomes
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+artifacts/
+outputs/
+runs/
+
+# Models and caches
+checkpoints/
+models/
+.cache/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+

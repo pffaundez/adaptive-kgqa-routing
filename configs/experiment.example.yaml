@@ -1,0 +1,31 @@
+experiment:
+  name: pilot
+  seed: 42
+
+dataset:
+  name: webqsp
+  split: train
+  sample_size: null
+  stratify_by: query_type
+
+portfolio:
+  workflows: []
+
+router:
+  type: quality_cost_predictor
+  lambda: 0.0
+
+cost:
+  normalize_using: validation
+  dimensions:
+    - llm_calls
+    - input_tokens
+    - output_tokens
+    - latency_seconds
+    - kg_operations
+
+evaluation:
+  primary_quality_metric: answer_f1
+  bootstrap_samples: 10000
+  equivalence_epsilon: 0.0
+
