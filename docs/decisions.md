@@ -45,3 +45,15 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Alternatives considered:** Immediate full counterfactual generation.
 - **Consequences:** Workflow portfolio and pilot population must be frozen before execution.
 - **Affected files or experiments:** docs/experimental-design.md, E-001.
+
+
+## D-005 — Controlled modular workflow portfolio
+
+- **Date:** 2026-09-29
+- **Status:** Active
+- **Context:** The routing experiment requires workflows with meaningfully different reasoning capabilities while avoiding unnecessary implementation confounds.
+- **Decision:** Use a controlled modular portfolio comprising direct specialized execution, graph-constrained reasoning, compositional logical-form execution, and bounded adaptive verification and repair. Share the KG snapshot, entity-linking inputs, schema information, answer format, execution engine, and cost accounting whenever technically possible. Treat published end-to-end KGQA systems as external baselines rather than portfolio members.
+- **Justification:** The four workflows isolate increasing reasoning and verification capabilities while preserving a common experimental environment.
+- **Alternatives considered:** Mixing complete published systems as portfolio members; collapsing logical-form execution into graph-constrained reasoning; using only three workflows.
+- **Consequences:** Concrete model assignments and implementations must be controlled separately before the portfolio is considered frozen. Differences attributed to workflows must not be confounded with unrelated model or infrastructure differences.
+- **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001.
