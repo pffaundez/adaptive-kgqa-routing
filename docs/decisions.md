@@ -69,3 +69,26 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Alternatives considered:** Assigning a different model to each workflow from the beginning; treating model-workflow packages as indivisible actions.
 - **Consequences:** W1 is defined as direct execution with the shared backbone, not as a small-model workflow. Claims about workflow effects must come from model-controlled comparisons. A later heterogeneous stage must report model effects and workflow-model interactions separately.
 - **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001.
+
+
+## D-007 — Controlled router instantiation
+
+- **Date:** 2026-09-30
+- **Status:** Active
+- **Context:** The scientific contribution is pre-execution routing among KGQA workflows, not a new predictor architecture.
+- **Decision:** Instantiate the primary router as a deliberately simple multi-task quality-cost predictor with a frozen query encoder, permitted pre-execution features, a shared MLP trunk, and workflow-specific quality and cost heads. Select workflows by maximizing predicted quality minus validation-normalized predicted cost. Treat direct classification and independent regressors as baselines.
+- **Justification:** Separate quality and cost predictions support multiple deployment budgets without redefining workflow labels for each cost preference. A simple predictor reduces the risk that results are driven by unnecessary architectural complexity.
+- **Alternatives considered:** Direct best-workflow classification as the primary router; sequential reinforcement learning; graph neural routing; end-to-end encoder fine-tuning.
+- **Consequences:** The predictor architecture is not claimed as the main novelty. Router inputs, losses, cost normalization, and calibration must be frozen before test evaluation.
+- **Affected files or experiments:** docs/experimental-design.md, E-001, Phase B, Phase C.
+
+## D-008 — Bounded counterfactual-data acquisition
+
+- **Date:** 2026-09-30
+- **Status:** Active
+- **Context:** Exhaustive execution of every workflow across full KGQA benchmarks may be prohibitively expensive.
+- **Decision:** Begin with a stratified 600-query training pilot: 200 queries from each primary dataset and 2,400 workflow executions for four workflows. If the oracle-headroom gate passes, construct an initial dataset containing 3,000 training, 600 validation, and 900 test queries, corresponding to at most 18,000 workflow executions. Require a separately approved decision before further expansion.
+- **Justification:** The bounded design is sufficient for a frozen-encoder router pilot, supports dataset-level evaluation, and establishes an explicit compute ceiling. Learning curves must justify additional acquisition.
+- **Alternatives considered:** Full-benchmark exhaustive generation; an unbounded adaptive collection process; training only on the 600-query pilot.
+- **Consequences:** Pilot outcomes may be reused only within the training population and only if workflows, prompts, model revision, KG snapshot, and instrumentation remain unchanged. Test counterfactual outcomes remain unavailable for router training and validation decisions.
+- **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001, Phase A.
