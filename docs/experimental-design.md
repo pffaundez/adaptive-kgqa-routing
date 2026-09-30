@@ -31,6 +31,26 @@ Keep datasets separate in reporting. Do not randomly merge WebQuestionsSP and Co
 
 Use **KQA Pro** only after the core study to evaluate richer operators and transfer to another KG representation. Treat the required workflow adaptations as an experimental factor rather than assuming direct comparability.
 
+## Experimental phases
+
+### Phase A — Counterfactual Dataset Generation
+
+Execute every frozen workflow on each selected query and record observed answer quality, execution cost, diagnostics, configuration, seed, dataset fingerprint, and workflow version. Phase A begins with a stratified oracle-headroom pilot. Full counterfactual generation is prohibited unless the pilot passes its predefined go/no-go gate.
+
+Phase A produces supervision and retrospective oracle data. It does not train or evaluate the router.
+
+### Phase B — Router Training
+
+Train the router using only the counterfactual outcomes from the training split as labels. Router inputs are restricted to information available before workflow execution. Use validation outcomes for checkpoint selection, calibration, cost normalization, lambda selection, and other decisions explicitly permitted by the frozen protocol.
+
+Phase B must not inspect test outcomes.
+
+### Phase C — Router Evaluation
+
+Freeze the router and all decision thresholds before test evaluation. For each test query, compute permitted pre-execution features, select one workflow, execute only that workflow for the deployable-policy result, and record realized quality and cost.
+
+After the routed evaluation is complete, use the exhaustive counterfactual test outcomes generated under the frozen protocol solely to compute oracles, regret, oracle recovery, and the cost-quality frontier. Test outcomes must not alter the router, thresholds, workflow portfolio, or interpretation rules.
+
 ## Data partitions
 
 ### Training
