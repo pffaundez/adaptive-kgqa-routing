@@ -57,3 +57,15 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Alternatives considered:** Mixing complete published systems as portfolio members; collapsing logical-form execution into graph-constrained reasoning; using only three workflows.
 - **Consequences:** Concrete model assignments and implementations must be controlled separately before the portfolio is considered frozen. Differences attributed to workflows must not be confounded with unrelated model or infrastructure differences.
 - **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001.
+
+
+## D-006 — Staged control of model heterogeneity
+
+- **Date:** 2026-09-30
+- **Status:** Active
+- **Context:** Assigning substantially different models to different workflows would confound workflow selection with model selection.
+- **Decision:** Use one shared frozen backbone across all technically compatible workflows in the primary oracle-headroom pilot. Introduce model heterogeneity only in a subsequent approved stage, using a crossed model-workflow design when feasible, and only if the controlled pilot demonstrates sufficient workflow-dependent headroom.
+- **Justification:** Holding the backbone fixed isolates the effect of the reasoning workflow before studying model-workflow interactions.
+- **Alternatives considered:** Assigning a different model to each workflow from the beginning; treating model-workflow packages as indivisible actions.
+- **Consequences:** W1 is defined as direct execution with the shared backbone, not as a small-model workflow. Claims about workflow effects must come from model-controlled comparisons. A later heterogeneous stage must report model effects and workflow-model interactions separately.
+- **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001.
