@@ -92,3 +92,74 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Alternatives considered:** Full-benchmark exhaustive generation; an unbounded adaptive collection process; training only on the 600-query pilot.
 - **Consequences:** Pilot outcomes may be reused only within the training population and only if workflows, prompts, model revision, KG snapshot, and instrumentation remain unchanged. Test counterfactual outcomes remain unavailable for router training and validation decisions.
 - **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001, Phase A.
+
+## D-009 — Controlled model assignment
+
+- **Date:** 2026-09-30
+- **Status:** Active
+- **Context:** Workflow comparisons must not be confounded by assigning different language models to different workflows.
+- **Decision:** Use the frozen `Qwen/Qwen2.5-14B-Instruct` backbone for W1–W4 and the frozen `intfloat/e5-base-v2` encoder for the router. The primary selection space contains workflows only, not model–workflow pairs. Run the backbone in BF16 without quantization and use deterministic greedy inference. Pin exact model and tokenizer revisions before Phase A.
+- **Justification:** A shared, stable backbone isolates the effect of workflow structure while preserving sufficient capacity for KGQA generation.
+- **Alternatives considered:** Qwen 3; smaller Qwen variants; heterogeneous workflow-specific models; joint model–workflow routing.
+- **Consequences:** Model heterogeneity is excluded from the primary experiment and requires separate approval as a later extension.
+- **Affected files or experiments:** docs/experimental-design.md, configs, Phase A–C.
+
+## D-010 — Primary cost definition
+
+- **Date:** 2026-09-30
+- **Status:** Active
+- **Context:** The router requires a reproducible cost target comparable across workflows with different numbers of calls.
+- **Decision:** Define primary workflow cost as total LLM tokens summed across every call, including input and output tokens. Retain input tokens, output tokens, call count, latency, GPU time, KG operations, and repair attempts as disaggregated secondary measures. Measure router overhead separately and include it only in end-to-end reporting.
+- **Justification:** Total token consumption is deterministic, auditable, and directly comparable across the controlled workflows.
+- **Alternatives considered:** Latency only; GPU time only; number of calls; monetary API cost.
+- **Consequences:** Every workflow call must emit complete usage metadata, including unsuccessful executions.
+- **Affected files or experiments:** Phase A counterfactual records, Phase C evaluation.
+
+## D-011 — Reproducibility and seed protocol
+
+- **Date:** 2026-09-30
+- **Status:** Active
+- **Context:** Reviewers must be able to reproduce downstream analyses even when exact GPU-level regeneration is not bitwise identical.
+- **Decision:** Use dataset sampling seed 42; router training seeds 0, 1, 2, 3, and 4; and 10,000 paired query-bootstrap samples with seed 42. Report every router run rather than selecting the best. Use greedy generation, deterministic retrieval tie ordering, one immutable canonical result per query–workflow pair, and explicit query-ID splits. Pin model, tokenizer, prompt, configuration, and software revisions. Preserve raw counterfactual outputs, checksums, and environment and hardware metadata.
+- **Justification:** This protocol separates experimental variability from artifact identity and enables exact reproduction of downstream evaluation from immutable outputs.
+- **Alternatives considered:** A single training seed; best-seed reporting; regeneration without preserved outputs.
+- **Consequences:** The project does not claim bitwise-identical GPU regeneration; exact downstream reproduction relies on released immutable artifacts.
+- **Affected files or experiments:** Phase A–C, artifact release.
+
+## D-012 — Shared KG and retrieval infrastructure
+
+- **Date:** 2026-09-30
+- **Status:** Active with sensitivity provision
+- **Context:** Infrastructure differences could be mistaken for workflow complementarity.
+- **Decision:** Use the same checksummed Freebase database from `dki-lab/Freebase-Setup`, a local read-only Virtuoso instance, and a shared ontology. Use one frozen automatic entity linker based on GrailQA BERT-NER with FACC1/Freebase aliases, and provide the same ranked entity candidates to every workflow; do not use gold entities in the primary condition. Workflows may retrieve differently after this shared input, but every retrieval event must be logged. Before counterfactual generation, audit executable gold logical forms, gold-answer reachability, missing entities and relations, and answer agreement.
+- **Justification:** Shared infrastructure controls avoid attributing database or entity-linking variation to routing quality.
+- **Alternatives considered:** Workflow-specific entity linkers; gold entities; different KG snapshots.
+- **Consequences:** If the audit reveals substantial or dataset-specific linker failures, run a separate sensitivity diagnostic with an alternative linker or gold-entity upper bound. This diagnostic cannot silently replace the primary condition; a permanent change requires approval.
+- **Affected files or experiments:** Phase A0 audit, Phase A counterfactual generation.
+
+## D-013 — Workflow execution contracts
+
+- **Date:** 2026-09-30
+- **Status:** Active with pilot sensitivity provision
+- **Context:** The four workflows require common interfaces and bounded execution to support valid quality–cost comparisons.
+- **Decision:** Every workflow must return a canonical S-expression that is deterministically translated to SPARQL and executed by the shared Freebase executor. Answers come only from execution, never free text. Record standardized statuses such as `success`, `parse_error`, `execution_error`, `timeout`, and `empty_result`; assign unsuccessful outcomes quality zero while retaining observed cost.
+
+  Execution budgets are: W1 at most one LLM call; W2 at most four calls, comprising up to three graph transitions and one logical-form synthesis; W3 at most one call; and W4 at most three calls, comprising one initial attempt and at most two execution-informed repairs. Each call has an 8,192-token context limit and a 512-token generation limit. Use `do_sample=false` and stop early on valid complete structured output. W4 may use execution feedback but never gold information.
+
+  Retrieval budgets are: top five entity candidates per mention; maximum graph or schema depth three; W2 top 25 relations per step with beam width five; W3 and initial W4 up to 50 relation candidates and 20 type candidates; and each W4 repair up to 25 additional relations. Use frozen deterministic E5 candidate ranking and prohibit gold logical forms, relations, and answers.
+- **Justification:** Explicit contracts make workflow capability differences measurable while bounding cost and preventing access to privileged supervision.
+- **Alternatives considered:** Unbounded agent loops; workflow-specific output formats; free-text answers; gold-assisted retrieval.
+- **Consequences:** A smoke test may identify overflow, empty candidates, latency, or implementation defects, but cannot tune quality. During the 600-query A0 pilot, inspect whether W2–W4 costs force selection toward W1 using a quality-only oracle, cost distributions, Pareto contribution, oracle-over-budget analysis, and exclusive wins. If W1 truly dominates on quality and cost, report that result. Budget changes require documented approval before full Phase A and cannot be made after test inspection.
+- **Affected files or experiments:** Workflow implementations, Phase A0, Phase A–C.
+
+## D-014 — Cost normalization and trade-off evaluation
+
+- **Date:** 2026-09-30
+- **Status:** Active with post-A0 sensitivity provision
+- **Context:** Raw token counts require a stable reference scale for training and interpreting the quality–cost trade-off.
+- **Decision:** Normalize workflow cost as raw total tokens divided by the mean W1 token cost on the training partition, without logarithmic transformation. Define utility as `Q_hat - lambda * C_tilde`. Evaluate lambda values `[0, 0.01, 0.02, 0.05, 0.10, 0.20, 0.50, 1, 2]` and normalized target budgets `[1, 1.25, 1.5, 2, 3]`. Select lambda on validation data only and freeze it before test evaluation. Report the complete quality–cost frontier, Pareto-efficient points, matched-cost and matched-quality comparisons, area under the common frontier interval, and workflow selection frequencies.
+- **Justification:** W1-based linear normalization preserves relative cost and makes operating points interpretable without hiding expensive workflows.
+- **Alternatives considered:** Raw cost only; log-normalized cost; a single fixed lambda; test-set tuning.
+- **Consequences:** After the 600-query A0 pilot and before full counterfactual generation, the lambda range or density and matched-budget points may be adjusted only if frontier coverage is insufficient. Any adjustment must use A0 evidence, preserve original A0 results, be documented and approved, and remain frozen for test evaluation.
+- **Affected files or experiments:** Router objective, Phase A0, Phase B–C.
+
