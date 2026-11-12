@@ -19,14 +19,12 @@ where \(\widehat Q\) and \(\widehat C\) are pre-execution predictions of answer 
 
 Training and validation use a counterfactual outcome table produced by executing every candidate workflow on every query. At test time, the router observes only pre-execution features, selects one workflow, and executes only that workflow. The full test outcome table is used afterward solely to calculate oracles and regret.
 
-## Initial benchmark scope
+## Initial Dataset (Freebase for consistency)
 
 - **WebQuestionsSP:** simpler natural-language Freebase questions and a test of whether expensive workflows can be avoided.
 - **ComplexWebQuestions:** compositional questions, using a seed-safe revised split.
 - **GrailQA:** i.i.d., compositional, and zero-shot schema generalization.
 - **KQA Pro:** optional cross-KG and expressive-adequacy validation after the controlled Freebase experiment.
-
-QALD is reserved for later multilingual or cross-KG external validation. It is not the primary source for counterfactual training because the current study prioritizes scale, structural diversity, and a shared execution environment.
 
 ## Candidate baseline families
 
