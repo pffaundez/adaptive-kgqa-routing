@@ -1,6 +1,6 @@
-# Adaptive KGQA Routing
+# Adaptive Pre-Execution Routing of Heterogeneous Workflows for Cost-Aware Knowledge Graph Question Answering
 
-Research repository for pre-execution, query-dependent routing among heterogeneous Knowledge Graph Question Answering (KGQA) workflows.
+This project studies adaptive pre-execution routing among heterogeneous Knowledge Graph Question Answering (KGQA) workflows. Rather than applying one fixed reasoning strategy to every question, the proposed router selects the most suitable workflow using only information available before candidate execution. We construct a full-information KGQA workflow selection benchmark by running a controlled portfolio of workflows on each query and recording their answer quality, computational cost, and execution status. The central hypothesis is that query-dependent workflow complementarity can improve the quality–cost trade-off over fixed-workflow and cost-insensitive routing baselines.
 
 ## Research question
 
