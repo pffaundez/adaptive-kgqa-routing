@@ -13,15 +13,15 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Consequences:** Router inputs must be restricted to information available before workflow execution.
 - **Affected files or experiments:** README.md, docs/experimental-design.md, E-001.
 
-## D-002 — Counterfactual supervision and information boundary
+## D-002 — Full-information workflow supervision and information boundary
 
 - **Date:** 2026-09-29
 - **Status:** Active
 - **Context:** Workflow-specific quality labels are not available before execution.
-- **Decision:** Construct training and validation supervision by executing every candidate workflow per query. Prohibit candidate answers, generated paths, critiques, and realized execution lengths as router inputs in the pre-execution condition.
+- **Decision:** Construct full-information training and validation supervision by executing every candidate workflow per query. Prohibit candidate answers, generated paths, critiques, and realized execution lengths as router inputs in the pre-execution condition.
 - **Justification:** Exhaustive outcomes provide supervised targets while the information boundary preserves the claimed deployment setting.
 - **Alternatives considered:** Online reinforcement learning; post-execution selection; heuristic-only routing.
-- **Consequences:** Counterfactual generation is an offline experimental cost. Test outcomes may be used retrospectively for oracle analysis but not router selection or tuning.
+- **Consequences:** Multi-workflow outcome collection is an offline experimental cost. Test outcomes may be used retrospectively for oracle analysis but not router selection or tuning.
 - **Affected files or experiments:** docs/experimental-design.md, E-001.
 
 ## D-003 — Controlled Freebase benchmark suite
@@ -35,14 +35,14 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Consequences:** Initial claims are limited to English-language Freebase KGQA. Multilingual and cross-KG generalization remain out of scope for the primary experiment.
 - **Affected files or experiments:** README.md, docs/experimental-design.md, E-001.
 
-## D-004 — Pilot gate before full counterfactual generation
+## D-004 — Pilot gate before full benchmark construction
 
 - **Date:** 2026-09-29
 - **Status:** Active
 - **Context:** Exhaustive workflow execution may be expensive, and routing is unjustified if workflows do not exhibit query-dependent complementarity.
-- **Decision:** Run a stratified pilot before generating the full counterfactual dataset. The pilot must measure workflow disagreement, quality-oracle headroom, utility-oracle headroom, query-type coverage, and generation cost.
+- **Decision:** Run a stratified pilot before constructing the full workflow performance matrix. The pilot must measure workflow disagreement, quality-oracle headroom, utility-oracle headroom, query-type coverage, and generation cost.
 - **Justification:** This provides an explicit early stopping condition and prevents an unjustified full sweep.
-- **Alternatives considered:** Immediate full counterfactual generation.
+- **Alternatives considered:** Immediate full workflow performance matrix construction.
 - **Consequences:** Workflow portfolio and pilot population must be frozen before execution.
 - **Affected files or experiments:** docs/experimental-design.md, E-001.
 
@@ -82,15 +82,15 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Consequences:** The predictor architecture is not claimed as the main novelty. Router inputs, losses, cost normalization, and calibration must be frozen before test evaluation.
 - **Affected files or experiments:** docs/experimental-design.md, E-001, Phase B, Phase C.
 
-## D-008 — Bounded counterfactual-data acquisition
+## D-008 — Bounded workflow-outcome acquisition
 
 - **Date:** 2026-09-30
 - **Status:** Active
-- **Context:** Exhaustive execution of every workflow across full KGQA benchmarks may be prohibitively expensive.
+- **Context:** Exhaustive execution of every workflow across the full KGQA benchmarks may be prohibitively expensive.
 - **Decision:** Begin with a stratified 600-query training pilot: 200 queries from each primary dataset and 2,400 workflow executions for four workflows. If the oracle-headroom gate passes, construct an initial dataset containing 3,000 training, 600 validation, and 900 test queries, corresponding to at most 18,000 workflow executions. Require a separately approved decision before further expansion.
 - **Justification:** The bounded design is sufficient for a frozen-encoder router pilot, supports dataset-level evaluation, and establishes an explicit compute ceiling. Learning curves must justify additional acquisition.
-- **Alternatives considered:** Full-benchmark exhaustive generation; an unbounded adaptive collection process; training only on the 600-query pilot.
-- **Consequences:** Pilot outcomes may be reused only within the training population and only if workflows, prompts, model revision, KG snapshot, and instrumentation remain unchanged. Test counterfactual outcomes remain unavailable for router training and validation decisions.
+- **Alternatives considered:** Full-benchmark exhaustive workflow evaluation; an unbounded adaptive collection process; training only on the 600-query pilot.
+- **Consequences:** Pilot outcomes may be reused only within the training population and only if workflows, prompts, model revision, KG snapshot, and instrumentation remain unchanged. Test workflow outcomes remain unavailable for router training and validation decisions.
 - **Affected files or experiments:** docs/experimental-design.md, docs/next-steps.md, E-001, Phase A.
 
 ## D-009 — Controlled model assignment
@@ -113,14 +113,14 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Justification:** Total token consumption is deterministic, auditable, and directly comparable across the controlled workflows.
 - **Alternatives considered:** Latency only; GPU time only; number of calls; monetary API cost.
 - **Consequences:** Every workflow call must emit complete usage metadata, including unsuccessful executions.
-- **Affected files or experiments:** Phase A counterfactual records, Phase C evaluation.
+- **Affected files or experiments:** Phase A workflow outcome records, Phase C evaluation.
 
 ## D-011 — Reproducibility and seed protocol
 
 - **Date:** 2026-09-30
 - **Status:** Active
 - **Context:** Reviewers must be able to reproduce downstream analyses even when exact GPU-level regeneration is not bitwise identical.
-- **Decision:** Use dataset sampling seed 42; router training seeds 0, 1, 2, 3, and 4; and 10,000 paired query-bootstrap samples with seed 42. Report every router run rather than selecting the best. Use greedy generation, deterministic retrieval tie ordering, one immutable canonical result per query–workflow pair, and explicit query-ID splits. Pin model, tokenizer, prompt, configuration, and software revisions. Preserve raw counterfactual outputs, checksums, and environment and hardware metadata.
+- **Decision:** Use dataset sampling seed 42; router training seeds 0, 1, 2, 3, and 4; and 10,000 paired query-bootstrap samples with seed 42. Report every router run rather than selecting the best. Use greedy generation, deterministic retrieval tie ordering, one immutable canonical result per query–workflow pair, and explicit query-ID splits. Pin model, tokenizer, prompt, configuration, and software revisions. Preserve raw workflow outputs, checksums, and environment and hardware metadata.
 - **Justification:** This protocol separates experimental variability from artifact identity and enables exact reproduction of downstream evaluation from immutable outputs.
 - **Alternatives considered:** A single training seed; best-seed reporting; regeneration without preserved outputs.
 - **Consequences:** The project does not claim bitwise-identical GPU regeneration; exact downstream reproduction relies on released immutable artifacts.
@@ -131,7 +131,7 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Date:** 2026-09-30
 - **Status:** Active with sensitivity provision
 - **Context:** Infrastructure differences could be mistaken for workflow complementarity.
-- **Decision:** Use the same checksummed Freebase database from `dki-lab/Freebase-Setup`, a local read-only Virtuoso instance, and a shared ontology. Use one frozen automatic entity linker based on GrailQA BERT-NER with FACC1/Freebase aliases, and provide the same ranked entity candidates to every workflow; do not use gold entities in the primary condition. Workflows may retrieve differently after this shared input, but every retrieval event must be logged. Before counterfactual generation, audit executable gold logical forms, gold-answer reachability, missing entities and relations, and answer agreement.
+- **Decision:** Use the same checksummed Freebase database from `dki-lab/Freebase-Setup`, a local read-only Virtuoso instance, and a shared ontology. Use one frozen automatic entity linker based on GrailQA BERT-NER with FACC1/Freebase aliases, and provide the same ranked entity candidates to every workflow; do not use gold entities in the primary condition. Workflows may retrieve differently after this shared input, but every retrieval event must be logged. Before multi-workflow outcome collection, audit executable gold logical forms, gold-answer reachability, missing entities and relations, and answer agreement.
 - **Justification:** Shared infrastructure controls avoid attributing database or entity-linking variation to routing quality.
 - **Alternatives considered:** Workflow-specific entity linkers; gold entities; different KG snapshots.
 - **Consequences:** If the audit reveals substantial or dataset-specific linker failures, run a separate sensitivity diagnostic with an alternative linker or gold-entity upper bound. This diagnostic cannot silently replace the primary condition; a permanent change requires approval.
@@ -160,6 +160,18 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Decision:** Normalize workflow cost as raw total tokens divided by the mean W1 token cost on the training partition, without logarithmic transformation. Define utility as `Q_hat - lambda * C_tilde`. Evaluate lambda values `[0, 0.01, 0.02, 0.05, 0.10, 0.20, 0.50, 1, 2]` and normalized target budgets `[1, 1.25, 1.5, 2, 3]`. Select lambda on validation data only and freeze it before test evaluation. Report the complete quality–cost frontier, Pareto-efficient points, matched-cost and matched-quality comparisons, area under the common frontier interval, and workflow selection frequencies.
 - **Justification:** W1-based linear normalization preserves relative cost and makes operating points interpretable without hiding expensive workflows.
 - **Alternatives considered:** Raw cost only; log-normalized cost; a single fixed lambda; test-set tuning.
-- **Consequences:** After the 600-query A0 pilot and before full counterfactual generation, the lambda range or density and matched-budget points may be adjusted only if frontier coverage is insufficient. Any adjustment must use A0 evidence, preserve original A0 results, be documented and approved, and remain frozen for test evaluation.
+- **Consequences:** After the 600-query A0 pilot and before full benchmark construction, the lambda range or density and matched-budget points may be adjusted only if frontier coverage is insufficient. Any adjustment must use A0 evidence, preserve original A0 results, be documented and approved, and remain frozen for test evaluation.
 - **Affected files or experiments:** Router objective, Phase A0, Phase B–C.
 
+
+
+## D-015 — Workflow-selection benchmark terminology
+
+- **Date:** 2026-11-23
+- **Status:** Active
+- **Context:** The project previously called its exhaustive query–workflow outcome table a counterfactual dataset. In causal and semantic usage, counterfactual data normally represents explicit what-if alternatives under an intervention. Here, the alternatives are observed executions of portfolio members rather than semantic or causal counterfactuals.
+- **Decision:** Use `workflow performance matrix` for the query-by-workflow outcome structure, `full-information workflow evaluation` or `multi-workflow outcome collection` for the acquisition procedure, and `KGQA workflow selection benchmark` for the complete reusable artifact. Rename Phase A to `Multi-Workflow Outcome Collection`. Historical references are terminology changes only and do not alter the approved experimental methodology.
+- **Justification:** These terms align the project with per-instance algorithm selection and portfolio-evaluation literature while avoiding an unsupported causal claim.
+- **Alternatives considered:** Counterfactual dataset; exhaustive execution dataset; multi-policy dataset.
+- **Consequences:** Repository documentation, schemas, configuration names, code identifiers, figures, and manuscript text must avoid `counterfactual` unless discussing genuine causal counterfactual reasoning or quoting prior terminology.
+- **Affected files or experiments:** README.md, docs/experimental-design.md, docs/next-steps.md, Phase A, benchmark schemas, manuscript.
