@@ -4,7 +4,7 @@
 
 Evaluate whether a pre-execution router can improve the quality-cost frontier over the strongest deployable fixed or learned policy when selecting among heterogeneous KGQA workflows.
 
-## Counterfactual outcome dataset
+## Workflow selection benchmark
 
 For each query \(q\) and workflow \(w\), record:
 
@@ -33,15 +33,15 @@ Use **KQA Pro** only after the core study to evaluate richer operators and trans
 
 ## Experimental phases
 
-### Phase A — Counterfactual Dataset Generation
+### Phase A — Multi-Workflow Outcome Collection
 
-Execute every frozen workflow on each selected query and record observed answer quality, execution cost, diagnostics, configuration, seed, dataset fingerprint, and workflow version. Phase A begins with a stratified oracle-headroom pilot. Full counterfactual generation is prohibited unless the pilot passes its predefined go/no-go gate.
+Execute every frozen workflow on each selected query and record observed answer quality, execution cost, diagnostics, configuration, seed, dataset fingerprint, and workflow version. Phase A begins with a stratified oracle-headroom pilot. Full workflow performance matrix construction is prohibited unless the pilot passes its predefined go/no-go gate.
 
-Phase A produces supervision and retrospective oracle data. It does not train or evaluate the router.
+Phase A produces full-information workflow supervision and retrospective oracle data. It does not train or evaluate the router.
 
 ### Phase B — Router Training
 
-Train the router using only the counterfactual outcomes from the training split as labels. Router inputs are restricted to information available before workflow execution. Use validation outcomes for checkpoint selection, calibration, cost normalization, lambda selection, and other decisions explicitly permitted by the frozen protocol.
+Train the router using only the workflow outcomes from the training split as labels. Router inputs are restricted to information available before workflow execution. Use validation outcomes for checkpoint selection, calibration, cost normalization, lambda selection, and other decisions explicitly permitted by the frozen protocol.
 
 Phase B must not inspect test outcomes.
 
@@ -49,13 +49,13 @@ Phase B must not inspect test outcomes.
 
 Freeze the router and all decision thresholds before test evaluation. For each test query, compute permitted pre-execution features, select one workflow, execute only that workflow for the deployable-policy result, and record realized quality and cost.
 
-After the routed evaluation is complete, use the exhaustive counterfactual test outcomes generated under the frozen protocol solely to compute oracles, regret, oracle recovery, and the cost-quality frontier. Test outcomes must not alter the router, thresholds, workflow portfolio, or interpretation rules.
+After the routed evaluation is complete, use the exhaustive test workflow outcomes generated under the frozen protocol solely to compute oracles, regret, oracle recovery, and the cost-quality frontier. Test outcomes must not alter the router, thresholds, workflow portfolio, or interpretation rules.
 
 ## Data partitions
 
 ### Training
 
-- execute every workflow for every training query;
+- execute every workflow for every training query to populate the training workflow performance matrix;
 - compute observed quality against gold answers;
 - log every cost dimension;
 - train quality and cost prediction using pre-execution features only.
@@ -180,7 +180,7 @@ Before generating the full counterfactual dataset, run a stratified pilot and me
 2. quality-oracle headroom;
 3. utility-oracle headroom;
 4. representation of all major query types;
-5. counterfactual-generation cost.
+5. multi-workflow outcome-collection cost.
 
 Proceed only if the workflow portfolio exhibits meaningful query-dependent complementarity. The final method must improve the test cost-quality frontier over the strongest deployable baseline; approaching an oracle alone is insufficient.
 
