@@ -174,7 +174,7 @@ When workflows are equivalent within a validation-defined tolerance \(\epsilon\)
 
 ## Pilot go/no-go gate
 
-Before generating the full counterfactual dataset, run a stratified pilot and measure:
+Before constructing the full workflow selection benchmark, run a stratified pilot and measure:
 
 1. workflow disagreement;
 2. quality-oracle headroom;
