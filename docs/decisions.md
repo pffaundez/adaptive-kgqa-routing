@@ -135,7 +135,7 @@ This file records only scientific and experimental decisions. Repository workflo
 - **Justification:** Shared infrastructure controls avoid attributing database or entity-linking variation to routing quality.
 - **Alternatives considered:** Workflow-specific entity linkers; gold entities; different KG snapshots.
 - **Consequences:** If the audit reveals substantial or dataset-specific linker failures, run a separate sensitivity diagnostic with an alternative linker or gold-entity upper bound. This diagnostic cannot silently replace the primary condition; a permanent change requires approval.
-- **Affected files or experiments:** Phase A0 audit, Phase A counterfactual generation.
+- **Affected files or experiments:** Phase A0 audit, Phase A multi-workflow outcome collection.
 
 ## D-013 — Workflow execution contracts
 
