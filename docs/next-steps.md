@@ -2,69 +2,57 @@
 
 ## Now
 
-### T-001 — Define and approve the minimal pilot workflow portfolio
+### T-004 — Prepare and execute the Phase A0 pilot
 
-- **Objective:** Select the smallest workflow set capable of testing whether query-dependent routing has meaningful quality-cost headroom.
-- **Dependencies:** D-001, D-002, D-003, and D-004.
-- **Completion criterion:** The user approves a versioned workflow list with operational definitions, shared inputs, output schema, stopping conditions, model assignments, and expected cost differences. The experimental decision is recorded before implementation.
-- **Restrictions:** Do not implement workflows, generate outcomes, or expand the portfolio before approval.
+- **Objective:** Implement the minimum reproducible pipeline required to determine whether W1–W4 exhibit meaningful query-dependent complementarity.
+- **Dependencies:** D-001 through D-015.
+- **Completion criterion:** The shared Freebase infrastructure passes its compatibility audit; the workflow outcome schema and W1–W4 adapters pass integrity tests; and all 600 approved pilot queries are executed under the frozen contracts.
+- **Required outputs:** The workflow performance matrix, raw immutable outputs, checksums, cost records, standardized failure statuses, and a reproducible A0 analysis report.
+- **Go/no-go evidence:** Workflow disagreement, quality-oracle headroom, utility-oracle headroom, exclusive wins, Pareto contribution, query-type coverage, and outcome-collection cost.
+- **Restrictions:** Do not expand the dataset, alter workflow budgets, or train the primary router before the A0 gate is reviewed and approved.
 - **Status:** Active.
 - **Priority:** Critical.
-- **Blocker:** The workflow portfolio is not yet defined.
+- **Blocker:** None at the design level; implementation and infrastructure validation are now required.
 
 ## Next
 
-### T-002 — Freeze the pilot population and split policy
+### T-005 — Review the A0 gate
 
-- **Objective:** Define a stratified query sample for the oracle-headroom pilot.
-- **Dependencies:** Completion of T-001.
-- **Completion criterion:** Approved datasets, source versions, query strata, sample counts, split source, deduplication policy, and dataset fingerprints.
-- **Restrictions:** Do not sample from test for training or validation. Preserve dataset-specific leakage controls.
+- **Objective:** Decide whether the controlled workflow portfolio justifies full benchmark construction.
+- **Dependencies:** Completion of T-004.
+- **Completion criterion:** A documented user-approved go, revise, or stop decision based only on the frozen A0 diagnostics.
+- **Restrictions:** Preserve the original A0 results. Any approved revision must be recorded before new outcome collection.
 - **Status:** Pending.
 - **Priority:** Critical.
-- **Blocker:** Requires the workflow portfolio.
 
-### T-003 — Specify the counterfactual outcome schema
+### T-006 — Construct the full workflow selection benchmark
 
-- **Objective:** Turn the fields in experimental-design.md into a validated, versioned data contract.
-- **Dependencies:** Completion of T-001 and T-002.
-- **Completion criterion:** Schema, validation rules, identifiers, cost units, version fields, and synthetic integrity tests are approved.
-- **Restrictions:** Do not implement a runner against an unstable schema.
+- **Objective:** Populate the approved 3,000/600/900 train/validation/test workflow performance matrices.
+- **Dependencies:** A positive T-005 decision.
+- **Completion criterion:** At most 18,000 validated query–workflow records under one frozen protocol.
 - **Status:** Pending.
 - **Priority:** High.
-- **Blocker:** Requires frozen workflows and pilot population.
+
+### T-007 — Train and evaluate routing policies
+
+- **Objective:** Execute Phases B and C using the frozen benchmark, baselines, router, metrics, and statistical protocol.
+- **Dependencies:** Completion of T-006.
+- **Completion criterion:** Reproducible quality–cost frontiers, oracle comparisons, ablations, and uncertainty estimates.
+- **Status:** Pending.
+- **Priority:** High.
 
 ## Later
 
-### T-004 — Implement workflow adapters and the counterfactual runner
+### T-008 — Evaluate external cross-KG validation
 
 - **Status:** Deferred.
-- **Activation condition:** T-001 through T-003 completed.
+- **Activation condition:** The controlled Freebase experiment produces sufficient positive evidence and the user approves expansion.
 
-### T-005 — Implement oracle and metric validation
-
-- **Status:** Deferred.
-- **Activation condition:** Counterfactual outcome schema approved.
-
-### T-006 — Implement and compare routing baselines
+### T-009 — Prepare the public paper artifact
 
 - **Status:** Deferred.
-- **Activation condition:** Pilot outcomes pass integrity checks.
-
-### T-007 — Evaluate external cross-KG validation
-
-- **Status:** Deferred.
-- **Activation condition:** Controlled Freebase experiment justifies further investment and the user approves expansion.
-
-### T-008 — Prepare the public paper artifact
-
-- **Status:** Deferred.
-- **Activation condition:** Paper artifact preparation begins.
+- **Activation condition:** Experiments are complete and results support the paper.
 - **Required gate:** Remove or exclude internal continuity documents after preserving necessary scientific information in public-facing documentation.
-
-## Blocked
-
-No separate blocked tasks. The active blocker is recorded under T-001.
 
 ## Completed
 
@@ -72,4 +60,22 @@ No separate blocked tasks. The active blocker is recorded under T-001.
 
 - **Result:** Repository created, published, cloned on kiowl, installed in an isolated Python 3.11 environment, and validated with pytest and Ruff.
 - **Evidence:** Commit 03c3c00aff9195876ad1df29c11396ecf9aab1a7; one test passed; Ruff reported no errors on 2026-09-29.
+- **Status:** Completed.
+
+### T-001 — Define and approve the minimal pilot workflow portfolio
+
+- **Result:** W1–W4, shared inputs, output contract, execution budgets, retrieval limits, model assignment, and cost accounting were approved.
+- **Evidence:** D-005, D-006, D-009, D-010, D-012, and D-013.
+- **Status:** Completed.
+
+### T-002 — Freeze the pilot population and split policy
+
+- **Result:** A 600-query training pilot was approved, with 200 queries from each primary dataset and dataset-specific leakage controls.
+- **Evidence:** D-003, D-008, and D-011.
+- **Status:** Completed.
+
+### T-003 — Specify the workflow outcome record requirements
+
+- **Result:** Required identifiers, outcomes, costs, versions, statuses, reproducibility metadata, and information boundaries were defined at the protocol level. The implementation schema and validators remain part of T-004.
+- **Evidence:** D-002, D-010, D-011, and D-013.
 - **Status:** Completed.
